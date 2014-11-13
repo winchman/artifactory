@@ -12,3 +12,6 @@ install:
 - make get
 script:
 - make test
+env:
+  global:
+    secure: HqpD2WaO5/rb01ef5tQWUDuGZmexzLi7FC3Nh7KA83Ei3sdJ53z9/m6AOKeH9J06EbRUIWVqhjehLFY49V/1GaIIsA54fBjNqOaV26r2CWquKatc+FUD7q5CWiQAY7ylVbyIGAw3lIDneOolDP3SUqJjZ0p9WckP70GUrFQZNZE=
