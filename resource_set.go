@@ -5,10 +5,10 @@ import (
 )
 
 /*
-ResourceMap is a thread-safe hash map of resource values.  Resources may be added
+ResourceSet is a thread-safe hash map of resource values.  Resources may be added
 and their artifacts will be available upon request
 */
-type ResourceMap struct {
+type ResourceSet struct {
 	resources map[ResourcePath]Resource
 	lock      sync.RWMutex // for adding new resource objects
 }
