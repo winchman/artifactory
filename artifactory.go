@@ -1,51 +1,51 @@
 package artifactory
 
-//[>
-//TODO:
-//- implementation
-//- tests (including linting and fmtpolice)
-//- comments for the linter
-//- some way of indicating that the artifactory is preparing a given artifact
-//*/
+import (
+	"io"
+	"sync"
+)
 
-//type Artifactory struct {
-//storageDir string
-//prepared   map[Handle]bool
-//artifacts  map[Handle][]artifact //tentative
-//}
+/*
+RWArtifactory is an implementation of the Artifactory interface
+*/
+type RWArtifactory struct {
+	resourceMap  map[Handle]ResourceMap
+	sync.RWMutex // for calling Reset() and safety when adding a new ResourceSet
+}
 
-////tentative
-//type artifact struct {
-//resource string
-//status   string // i.e. currently preparing so don't try to prepare, just wait
-//}
+/*
+Artifactory is a type that can be used to handle all of the artifact-related
+interactions for a given build.  It is the responsibility of the caller to
+write the resulting artifacts to the correct place on disk once they are
+returned
+*/
+type Artifactory interface {
+	// Reset zeros out any data structures that store resource information
+	// in memory.  It also deletes the corresponding files from the host
+	// filesystem
+	Reset() error
 
-//func NewArtifactory(storageDir string) *Artifactory {
-//// validation of storage dir?
-//return &Artifactory{storageDir: storageDir}
-//}
+	// ResetHandle zeros out the files and data from one given handle
+	ResetHandle(Handle) error
 
-//type PrepareArtifactOptions struct {
-//Handle   Handle
-//Resource string // path to file or directory inside the container
-//Force    bool   // by default, do not "prepare" artifacts that have already been retrieved
-//}
+	// AddResource gives an Artifactory a list of resource paths, for a
+	// given handle, that may be requested by the user.  Nominally, this
+	// allows the artifactory to populate the data structure without
+	// actually retrieving (and returning) the files from a container.
+	//
+	// I'm not 100% this function will be necessary.
+	AddResource(Handle, ...ResourcePath) error
 
-//// FIXME: should this be a private method?  guess it depends on whether we want eager or lazy loading
-//// FIXME: do we even want to store to disk at all?  might be more efficient to just stream the tarball right from the container to the requesting function
-//func (art *Artifactory) PrepareArtifact(opts PrepareArtifactOptions) error {
-//// TODO: normalize the resource name
-//// TODO: some way to indicate that the resource is currently being prepared so we don't block on it unless necessary
-//return nil
-//}
-
-//type PopulateArtifactOptions struct {
-//Handle      Handle
-//Resource    string // do we want this here?
-//PopulateAll bool   // maybe if this is set to true we don't specify a specific resource?
-//Destination string
-//}
-
-//func (art *Artifactory) PopulateArtifacts(opts PopulateArtifactOptions) error {
-//return nil
-//}
+	// RetrieveResources will return an io.ReadCloser from which the
+	// file contents can be read for each resource.  The file contents
+	// for each will be a tarball (compressed?) such that it can be
+	// passed directly into the docker `archive` package's
+	// DecompressSteam or Untar function. The intent is that the
+	// resource be untarred / decompressed into
+	// `$CONTEXT_DIR/$PREFIX/$RESOURCE_PATH` where $CONTEXT_DIR is the
+	// directory from which the dependent image will be built, $PREFIX
+	// is an arbitrary prefix (e.g. "inbox"), and $RESOURCE_PATH is the
+	// full path at which the resource can be found *inside* the
+	// container
+	RetrieveResources(Handle, retrieveAll bool, requestedPaths ...ResourcePath) (map[ResourcePath]io.ReadCloser, error)
+}
