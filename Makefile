@@ -13,6 +13,7 @@ fmtpolice:
 	@find . -type f -name '*.test' -exec rm {} \;
 
 .PHONY: get
+get:
 	go get -d -t ./...
 
 coverage:
