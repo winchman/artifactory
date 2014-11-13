@@ -18,7 +18,7 @@ a nested read-write lock such that it may be locked when being
 concurrently read from / written to.
 */
 type Resource struct {
-	Path    string       // redundant with ResourcePath as the key into the ResourceSet map - only one is needed
+	Path    string
 	lock    sync.RWMutex // used for reading/writing the state and the actual file
 	Present bool
 	Error   error
