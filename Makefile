@@ -12,3 +12,5 @@ fmtpolice:
 	bash fmtpolice
 	@find . -type f -name '*.test' -exec rm {} \;
 
+.PHONY: get
+	go get -d -t ./...
