@@ -7,3 +7,17 @@ artifactory
 [![Coverage Status](https://img.shields.io/coveralls/sylphon/artifactory.svg)](https://coveralls.io/r/sylphon/artifactory?branch=master)
 
 Pluck and store artifacts from Docker images
+
+## Usage
+
+Currently, see godocs.
+
+## Testing
+
+```bash
+# get dependencies
+make get
+
+# run tests
+make test
+```
