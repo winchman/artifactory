@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"os"
 	"sync"
 )
 
@@ -29,6 +30,20 @@ type Resource struct {
 	path       ResourcePath
 	present    bool
 	storageDir string
+}
+
+// Reset deletes the underlying extracted archive file and resets the state of
+// the resource
+func (r *Resource) Reset() error {
+	r.lock.Lock()
+	defer r.lock.Unlock()
+	if r.present {
+		r.present = false
+		if err := os.RemoveAll(r.artifactFullPath()); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 /*
@@ -65,7 +80,7 @@ func (r *Resource) ArtifactBytes() ([]byte, error) {
 func (r *Resource) artifactBytes() ([]byte, error) {
 	r.lock.RLock()
 	defer r.lock.RUnlock()
-	return ioutil.ReadFile(r.storageDir + "/" + r.artifactFileName())
+	return ioutil.ReadFile(r.artifactFullPath())
 }
 
 // Path returns, for the given resource, the path inside the container at which
@@ -78,4 +93,8 @@ func (r *Resource) artifactFileName() string {
 	var hasher = sha1.New()
 	io.WriteString(hasher, string(r.path))
 	return fmt.Sprintf("%x", hasher.Sum(nil)) + ".tar"
+}
+
+func (r *Resource) artifactFullPath() string {
+	return r.storageDir + "/" + r.artifactFileName()
 }
