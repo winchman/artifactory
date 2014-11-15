@@ -8,7 +8,7 @@ import (
 )
 
 func TestArtifactBytes(t *testing.T) {
-	testingDir := os.Getenv("PWD") + "/testing"
+	testingDir := os.Getenv("PWD") + "/_testing"
 	opts := NewResourceOptions{StorageDir: testingDir, Path: "/app/bin", test: true}
 	var resource = NewResource(opts)
 
