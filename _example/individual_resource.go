@@ -18,6 +18,8 @@ const (
 	resourcePath = "/app/bin/docker-builder"
 )
 
+// The example details how to extract the docker-builder binary from the lastest
+// docker-builder image
 func main() {
 	client, err := artifactory.Dockerclient()
 	if err != nil {
