@@ -23,13 +23,13 @@ concurrently read from / written to.
 */
 type Resource interface {
 	ArtifactBytes() ([]byte, error)
-	//Present() bool
 	Path() ResourcePath
 }
 
 type RWResource struct {
 	Error error
 
+	handle     Handle
 	lock       sync.RWMutex // used for reading/writing the state and the actual file
 	path       ResourcePath
 	present    bool
@@ -56,21 +56,15 @@ func NewResource(opts NewResourceOptions) Resource {
 		storageDir: opts.StorageDir,
 		path:       ResourcePath(opts.Path),
 		present:    opts.test, // if testing mode, mark as already present
+		handle:     opts.Handle,
 	}
 }
 
 func (r *RWResource) ArtifactBytes() ([]byte, error) {
-	r.checkAndPopulate()
-	return r.artifactBytes()
-}
-
-func (r *RWResource) checkAndPopulate() {
-	r.lock.Lock()
-	defer r.lock.Unlock()
-	if !r.present {
-		// populate artifact file
-		r.present = true
+	if err := r.checkAndPopulate(); err != nil {
+		return nil, err
 	}
+	return r.artifactBytes()
 }
 
 func (r *RWResource) artifactBytes() ([]byte, error) {
