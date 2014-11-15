@@ -21,12 +21,7 @@ that corresponds to a real file on disk on the host machine.  It has
 a nested read-write lock such that it may be locked when being
 concurrently read from / written to.
 */
-type Resource interface {
-	ArtifactBytes() ([]byte, error)
-	Path() ResourcePath
-}
-
-type RWResource struct {
+type Resource struct {
 	Error error
 
 	handle     Handle
@@ -49,10 +44,9 @@ type NewResourceOptions struct {
 	test       bool // private, can only be set for tests in same package
 }
 
-// Generally, this would be the storage dir of the artifactory plus the
-// uniqueID of the handle
-func NewResource(opts NewResourceOptions) Resource {
-	return &RWResource{
+// NewResource returns a properly initialized resource
+func NewResource(opts NewResourceOptions) *Resource {
+	return &Resource{
 		storageDir: opts.StorageDir,
 		path:       ResourcePath(opts.Path),
 		present:    opts.test, // if testing mode, mark as already present
@@ -60,24 +54,27 @@ func NewResource(opts NewResourceOptions) Resource {
 	}
 }
 
-func (r *RWResource) ArtifactBytes() ([]byte, error) {
+// ArtifactBytes returns the bytes of the artifact (a `.tar` archive)
+func (r *Resource) ArtifactBytes() ([]byte, error) {
 	if err := r.checkAndPopulate(); err != nil {
 		return nil, err
 	}
 	return r.artifactBytes()
 }
 
-func (r *RWResource) artifactBytes() ([]byte, error) {
+func (r *Resource) artifactBytes() ([]byte, error) {
 	r.lock.RLock()
 	defer r.lock.RUnlock()
 	return ioutil.ReadFile(r.storageDir + "/" + r.artifactFileName())
 }
 
-func (r *RWResource) Path() ResourcePath {
+// Path returns, for the given resource, the path inside the container at which
+// it can be found - used as a unique index for a given handle (container ID)
+func (r *Resource) Path() ResourcePath {
 	return r.path
 }
 
-func (r *RWResource) artifactFileName() string {
+func (r *Resource) artifactFileName() string {
 	var hasher = sha1.New()
 	io.WriteString(hasher, string(r.path))
 	return fmt.Sprintf("%x", hasher.Sum(nil)) + ".tar"

@@ -12,7 +12,7 @@ import (
 	"github.com/fsouza/go-dockerclient"
 )
 
-func (r *RWResource) checkAndPopulate() error {
+func (r *Resource) checkAndPopulate() error {
 	r.lock.Lock()
 	defer r.lock.Unlock()
 

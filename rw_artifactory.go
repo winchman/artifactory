@@ -4,6 +4,8 @@ import (
 	"sync"
 )
 
+// NewArtifactory produces an initialized instance of a struct that implements
+// the Artifactory interface
 func NewArtifactory(storageDir string) Artifactory {
 	return &RWArtifactory{
 		resourceMap: map[Handle]*ResourceSet{},
