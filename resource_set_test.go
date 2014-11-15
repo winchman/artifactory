@@ -6,7 +6,7 @@ import (
 
 func TestResourceSetAddAndGet(t *testing.T) {
 	var r = NewResourceSet()
-	var resource = &Resource{Path: "foo"}
+	var resource = NewResource(NewResourceOptions{Path: "foo", test: true})
 
 	err := r.Add(resource)
 	if err != nil {
@@ -14,14 +14,14 @@ func TestResourceSetAddAndGet(t *testing.T) {
 	}
 
 	ret := r.Get("foo")
-	if ret == nil || ret.Path != "foo" {
+	if ret == nil || ret.Path() != "foo" {
 		t.Errorf("resource should be retrievable")
 	}
 }
 
 func TestResourceSetAddTwice(t *testing.T) {
 	var r = NewResourceSet()
-	var resource = &Resource{Path: "foo"}
+	var resource = NewResource(NewResourceOptions{Path: "foo", test: true})
 
 	_ = r.Add(resource)
 	err := r.Add(resource)

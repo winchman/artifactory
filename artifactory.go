@@ -1,18 +1,5 @@
 package artifactory
 
-import (
-	"io"
-	"sync"
-)
-
-/*
-RWArtifactory is an implementation of the Artifactory interface
-*/
-type RWArtifactory struct {
-	resourceMap  map[Handle]ResourceMap
-	sync.RWMutex // for calling Reset() and safety when adding a new ResourceSet
-}
-
 /*
 Artifactory is a type that can be used to handle all of the artifact-related
 interactions for a given build.  It is the responsibility of the caller to
@@ -36,7 +23,7 @@ type Artifactory interface {
 	// I'm not 100% this function will be necessary.
 	AddResource(Handle, ...ResourcePath) error
 
-	// RetrieveResources will return an io.ReadCloser from which the
+	// EachResource will return an io.ReadCloser from which the
 	// file contents can be read for each resource.  The file contents
 	// for each will be a tarball (compressed?) such that it can be
 	// passed directly into the docker `archive` package's
@@ -47,5 +34,5 @@ type Artifactory interface {
 	// is an arbitrary prefix (e.g. "inbox"), and $RESOURCE_PATH is the
 	// full path at which the resource can be found *inside* the
 	// container
-	RetrieveResources(Handle, retrieveAll bool, requestedPaths ...ResourcePath) (map[ResourcePath]io.ReadCloser, error)
+	EachResource(Handle, func(*Resource, error)) error
 }
