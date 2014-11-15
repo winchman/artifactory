@@ -21,3 +21,8 @@ make get
 # run tests
 make test
 ```
+
+TODO:
+
+- add example to README
+- flesh out the artifactory and add tests for it
