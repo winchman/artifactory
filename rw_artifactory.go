@@ -26,7 +26,7 @@ type RWArtifactory struct {
 // in memory.  It also deletes the corresponding files from the host
 // filesystem
 func (art *RWArtifactory) Reset() error {
-	for handle, _ := range art.resourceMap {
+	for handle := range art.resourceMap {
 		if err := art.ResetHandle(handle); err != nil {
 			return err
 		}

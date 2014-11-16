@@ -69,6 +69,9 @@ func IsAlreadyPresentInSetError(e error) bool {
 
 }
 
+// Each iterates over each resource in the set in a threadsafe manner, yielding
+// each one to function resourceFunc.  If resourceFunc returns an error, that
+// error is passed to the subseqwuent invocation.
 func (set *ResourceSet) Each(resourceFunc func(r *Resource, error error) error) error {
 	set.lock.RLock()
 	defer set.lock.RUnlock()
