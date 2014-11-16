@@ -10,7 +10,7 @@ Pluck and store artifacts from Docker images
 
 ## Usage
 
-Currently, see godocs.
+See [\_examples/](./_examples) and [integration tests](./rw_artifactory_test.go)
 
 ## Testing
 
@@ -20,4 +20,14 @@ make get
 
 # run tests
 make test
+```
+
+## Integration Tests
+
+Integration tests require a local docker daemon.  You may also need to
+run `docker pull quay.io/rafecolton/docker-builder:latest` first.  To
+run full test suite:
+
+```bash
+make integration
 ```
