@@ -21,12 +21,12 @@ const (
 // The example details how to extract the docker-builder binary from the lastest
 // docker-builder image
 func main() {
-	client, err := artifactory.Dockerclient()
+	client, err := artifactory.NewDockerClient()
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-	containerID, err := latestImageByName(client, imageName)
+	containerID, err := client.LatestImageByName(imageName)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -47,25 +47,4 @@ func main() {
 	byteReader := bytes.NewReader(artifactBytes)
 	archive.Untar(byteReader, os.Getenv("PWD"), &archive.TarOptions{})
 	_ = resource.Reset()
-}
-
-func latestImageByName(client *docker.Client, name string) (string, error) {
-	images, err := client.ListImages(false)
-	if err != nil {
-		return "", err
-	}
-	sort.Sort(dockersort.ByCreatedDescending(images))
-	for _, image := range images {
-		for _, tag := range image.RepoTags {
-			matched, err := regexp.MatchString("^"+name+"$", tag)
-			if err != nil {
-				return "", nil
-			}
-			if matched {
-				return image.ID, nil
-			}
-		}
-	}
-
-	return "", fmt.Errorf("unable to find image named %s", name)
 }

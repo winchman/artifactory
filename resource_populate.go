@@ -13,18 +13,18 @@ func (r *Resource) checkAndPopulate() error {
 	if !r.present {
 		r.lock.Lock()
 		defer r.lock.Unlock()
-		client, err := Dockerclient()
+		client, err := NewDockerClient()
 		if err != nil {
 			return err
 		}
 
-		containerID, err := createAndStartContainer(client, r.handle.String())
+		containerID, err := client.createAndStartContainer(r.handle.String())
 		if err != nil {
 			return err
 		}
 
 		defer func() {
-			go killContainer(client, containerID)
+			go client.killContainer(containerID)
 		}()
 
 		var buf bytes.Buffer
@@ -34,7 +34,7 @@ func (r *Resource) checkAndPopulate() error {
 			Resource:     string(r.path),
 			OutputStream: &buf,
 		}
-		if err := client.CopyFromContainer(opts); err != nil {
+		if err := (*docker.Client)(client).CopyFromContainer(opts); err != nil {
 			return err
 		}
 		if err := os.MkdirAll(r.storageDir, 0777); err != nil {
@@ -50,7 +50,7 @@ func (r *Resource) checkAndPopulate() error {
 }
 
 // creates the container with image id and starts it, returns the container id
-func createAndStartContainer(client *docker.Client, id string) (string, error) {
+func (client *DockerClient) createAndStartContainer(id string) (string, error) {
 	createOpts := docker.CreateContainerOptions{
 		Config: &docker.Config{
 			Image:      id,
@@ -59,14 +59,14 @@ func createAndStartContainer(client *docker.Client, id string) (string, error) {
 		},
 	}
 
-	container, err := client.CreateContainer(createOpts)
+	container, err := (*docker.Client)(client).CreateContainer(createOpts)
 	if err != nil {
 		//fmt.Println("error creating container: " + err.Error())
 		return "", err
 	}
 
 	//fmt.Println("starting container for artifact extraction...")
-	if err := client.StartContainer(container.ID, &docker.HostConfig{}); err != nil {
+	if err := (*docker.Client)(client).StartContainer(container.ID, &docker.HostConfig{}); err != nil {
 		//fmt.Println("error starting container: " + err.Error())
 		return "", err
 	}
@@ -74,13 +74,13 @@ func createAndStartContainer(client *docker.Client, id string) (string, error) {
 }
 
 // kills the container
-func killContainer(client *docker.Client, containerID string) {
+func (client *DockerClient) killContainer(containerID string) {
 	//fmt.Println("artifact extraction complete, killing container")
 	opts := docker.KillContainerOptions{
 		ID:     containerID,
 		Signal: docker.SIGKILL,
 	}
-	if err := client.KillContainer(opts); err != nil {
+	if err := (*docker.Client)(client).KillContainer(opts); err != nil {
 		fmt.Println("error killing container: " + err.Error())
 	}
 }

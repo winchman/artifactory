@@ -13,10 +13,13 @@ import (
 	"github.com/rafecolton/go-dockerclient-sort"
 )
 
-var client *docker.Client
+var client *DockerClient
 
-// Dockerclient returns the dockerclient used by the artifactory package
-func Dockerclient() (*docker.Client, error) {
+// DockerClient wraps docker.Client, adding a few handy functions
+type DockerClient docker.Client
+
+// NewDockerClient returns the dockerclient used by the artifactory package
+func NewDockerClient() (*DockerClient, error) {
 	if client != nil {
 		return client, nil
 	}
@@ -28,6 +31,7 @@ func Dockerclient() (*docker.Client, error) {
 	certPath := os.Getenv("DOCKER_CERT_PATH")
 	tlsVerify := os.Getenv("DOCKER_TLS_VERIFY") != ""
 
+	var dclient *docker.Client
 	if endpoint.Scheme == "https" {
 		cert := path.Join(certPath, "cert.pem")
 		key := path.Join(certPath, "key.pem")
@@ -36,16 +40,17 @@ func Dockerclient() (*docker.Client, error) {
 			ca = path.Join(certPath, "ca.pem")
 		}
 
-		client, err = docker.NewTLSClient(endpoint.String(), cert, key, ca)
+		dclient, err = docker.NewTLSClient(endpoint.String(), cert, key, ca)
 		if err != nil {
 			return nil, err
 		}
 	} else {
-		client, err = docker.NewClient(endpoint.String())
+		dclient, err = docker.NewClient(endpoint.String())
 		if err != nil {
 			return nil, err
 		}
 	}
+	client = (*DockerClient)(dclient)
 
 	return client, nil
 }
@@ -78,10 +83,10 @@ func getEndpoint() (*url.URL, error) {
 	return u, nil
 }
 
-// LatestImageByName uses the provided docker client to get the id
+// LatestImageIDByName uses the provided docker client to get the id
 // most-recently-created image with a name matching `name`
-func LatestImageByName(client *docker.Client, name string) (string, error) {
-	images, err := client.ListImages(false)
+func (client *DockerClient) LatestImageIDByName(name string) (string, error) {
+	images, err := (*docker.Client)(client).ListImages(false)
 	if err != nil {
 		return "", err
 	}

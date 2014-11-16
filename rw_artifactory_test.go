@@ -29,11 +29,11 @@ func TestArtifactory(t *testing.T) {
 
 	var art = NewArtifactory(tempDir)
 	var containerID string
-	client, err := Dockerclient()
+	client, err := NewDockerClient()
 	if err != nil {
 		t.Fatal(err)
 	}
-	containerID, err = LatestImageByName(client, imageName)
+	containerID, err = client.LatestImageIDByName(imageName)
 	if err != nil {
 		t.Fatal(err)
 	}
