@@ -17,20 +17,34 @@ func NewArtifactory(storageDir string) Artifactory {
 RWArtifactory is an implementation of the Artifactory interface
 */
 type RWArtifactory struct {
-	resourceMap  map[Handle]*ResourceSet
-	storageDir   string
-	sync.RWMutex // for calling Reset() and safety when adding a new ResourceSet
+	resourceMap map[Handle]*ResourceSet
+	storageDir  string
+	lock        sync.RWMutex // for calling Reset() and safety when adding a new ResourceSet
 }
 
 // Reset zeros out any data structures that store resource information
 // in memory.  It also deletes the corresponding files from the host
 // filesystem
 func (art *RWArtifactory) Reset() error {
+	for handle, _ := range art.resourceMap {
+		if err := art.ResetHandle(handle); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
 // ResetHandle zeros out the files and data from one given handle
-func (art *RWArtifactory) ResetHandle(Handle) error {
+func (art *RWArtifactory) ResetHandle(h Handle) error {
+	art.lock.Lock()
+	defer art.lock.Unlock()
+	set := art.resourceMap[h]
+	if set == nil {
+		return nil
+	}
+	set.Each(func(r *Resource, err error) error { return r.Reset() })
+	art.resourceMap[h] = nil
+
 	return nil
 }
 
@@ -38,9 +52,24 @@ func (art *RWArtifactory) ResetHandle(Handle) error {
 // given handle, that may be requested by the user.  Nominally, this
 // allows the artifactory to populate the data structure without
 // actually retrieving (and returning) the files from a container.
-//
-// I'm not 100% this function will be necessary.
-func (art *RWArtifactory) AddResource(Handle, ...ResourcePath) error {
+func (art *RWArtifactory) AddResource(h Handle, resourcePaths ...ResourcePath) error {
+	art.lock.Lock()
+	defer art.lock.Unlock()
+	if art.resourceMap[h] == nil {
+		art.resourceMap[h] = NewResourceSet()
+	}
+
+	for _, resourcePath := range resourcePaths {
+		err := art.resourceMap[h].Add(NewResource(NewResourceOptions{
+			Path:       string(resourcePath),
+			StorageDir: art.storageDir + "/" + string(h),
+			Handle:     h,
+		}))
+		if err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -55,6 +84,9 @@ func (art *RWArtifactory) AddResource(Handle, ...ResourcePath) error {
 // is an arbitrary prefix (e.g. "inbox"), and $RESOURCE_PATH is the
 // full path at which the resource can be found *inside* the
 // container
-func (art *RWArtifactory) EachResource(Handle, func(*Resource, error)) error {
-	return nil
+func (art *RWArtifactory) EachResource(h Handle, resourceFunc func(*Resource, error) error) error {
+	art.lock.RLock()
+	defer art.lock.RUnlock()
+	set := art.resourceMap[h]
+	return set.Each(resourceFunc)
 }

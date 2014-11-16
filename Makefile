@@ -4,6 +4,10 @@ SHELL := /bin/bash
 test: .fmtpolice
 	go test ./...
 
+.PHONY: integration
+integration: .fmtpolice
+	INTEGRATION=1 go test ./...
+
 fmtpolice:
 	curl -sL https://raw.githubusercontent.com/rafecolton/fmtpolice/master/fmtpolice -o $@
 

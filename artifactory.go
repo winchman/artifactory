@@ -34,5 +34,5 @@ type Artifactory interface {
 	// is an arbitrary prefix (e.g. "inbox"), and $RESOURCE_PATH is the
 	// full path at which the resource can be found *inside* the
 	// container
-	EachResource(Handle, func(*Resource, error)) error
+	EachResource(Handle, func(*Resource, error) error) error
 }

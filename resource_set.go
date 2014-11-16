@@ -68,3 +68,13 @@ func IsAlreadyPresentInSetError(e error) bool {
 	}
 
 }
+
+func (set *ResourceSet) Each(resourceFunc func(r *Resource, error error) error) error {
+	set.lock.RLock()
+	defer set.lock.RUnlock()
+	var err error
+	for _, resource := range set.resources {
+		err = resourceFunc(resource, err)
+	}
+	return nil
+}

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io/ioutil"
+	"os"
 
 	"github.com/fsouza/go-dockerclient"
 )
@@ -36,6 +37,9 @@ func (r *Resource) checkAndPopulate() error {
 		if err := client.CopyFromContainer(opts); err != nil {
 			return err
 		}
+		if err := os.MkdirAll(r.storageDir, 0777); err != nil {
+			return err
+		}
 		if err := ioutil.WriteFile(r.storageDir+"/"+r.artifactFileName(), buf.Bytes(), 0644); err != nil {
 			return err
 		}
@@ -57,13 +61,13 @@ func createAndStartContainer(client *docker.Client, id string) (string, error) {
 
 	container, err := client.CreateContainer(createOpts)
 	if err != nil {
-		fmt.Println("error creating container: " + err.Error())
+		//fmt.Println("error creating container: " + err.Error())
 		return "", err
 	}
 
-	fmt.Println("starting container for artifact extraction...")
+	//fmt.Println("starting container for artifact extraction...")
 	if err := client.StartContainer(container.ID, &docker.HostConfig{}); err != nil {
-		fmt.Println("error starting container: " + err.Error())
+		//fmt.Println("error starting container: " + err.Error())
 		return "", err
 	}
 	return container.ID, nil
@@ -71,7 +75,7 @@ func createAndStartContainer(client *docker.Client, id string) (string, error) {
 
 // kills the container
 func killContainer(client *docker.Client, containerID string) {
-	fmt.Println("artifact extraction complete, killing container")
+	//fmt.Println("artifact extraction complete, killing container")
 	opts := docker.KillContainerOptions{
 		ID:     containerID,
 		Signal: docker.SIGKILL,

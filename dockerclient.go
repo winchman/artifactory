@@ -6,8 +6,11 @@ import (
 	"net/url"
 	"os"
 	"path"
+	"regexp"
+	"sort"
 
 	"github.com/fsouza/go-dockerclient"
+	"github.com/rafecolton/go-dockerclient-sort"
 )
 
 var client *docker.Client
@@ -73,4 +76,27 @@ func getEndpoint() (*url.URL, error) {
 		}
 	}
 	return u, nil
+}
+
+// LatestImageByName uses the provided docker client to get the id
+// most-recently-created image with a name matching `name`
+func LatestImageByName(client *docker.Client, name string) (string, error) {
+	images, err := client.ListImages(false)
+	if err != nil {
+		return "", err
+	}
+	sort.Sort(dockersort.ByCreatedDescending(images))
+	for _, image := range images {
+		for _, tag := range image.RepoTags {
+			matched, err := regexp.MatchString("^"+name+"$", tag)
+			if err != nil {
+				return "", nil
+			}
+			if matched {
+				return image.ID, nil
+			}
+		}
+	}
+
+	return "", fmt.Errorf("unable to find image named %s", name)
 }
