@@ -105,3 +105,8 @@ func (client *DockerClient) LatestImageIDByName(name string) (string, error) {
 
 	return "", fmt.Errorf("unable to find image named %s", name)
 }
+
+// Client returns the underlying *docker.Client for calling all of its functions
+func (client *DockerClient) Client() *docker.Client {
+	return (*docker.Client)(client)
+}
