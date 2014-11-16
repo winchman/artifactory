@@ -10,7 +10,7 @@ Pluck and store artifacts from Docker images
 
 ## Usage
 
-See [\_examples/](./_examples) and [integration tests](./rw_artifactory_test.go)
+See [\_example/](./_example) and [integration tests](./rw_artifactory_test.go)
 
 ## Testing
 
