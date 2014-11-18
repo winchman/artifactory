@@ -30,7 +30,7 @@ func main() {
 	}
 	opts := artifactory.NewResourceOptions{
 		StorageDir: os.Getenv("PWD"),
-		Handle:     artifactory.NewHandle(containerID),
+		Handle:     containerID,
 		Path:       resourcePath,
 	}
 

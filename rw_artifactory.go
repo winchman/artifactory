@@ -8,7 +8,7 @@ import (
 // the Artifactory interface
 func NewArtifactory(storageDir string) Artifactory {
 	return &RWArtifactory{
-		resourceMap: map[Handle]*ResourceSet{},
+		resourceMap: map[string]*ResourceSet{},
 		storageDir:  storageDir,
 	}
 }
@@ -17,7 +17,7 @@ func NewArtifactory(storageDir string) Artifactory {
 RWArtifactory is an implementation of the Artifactory interface
 */
 type RWArtifactory struct {
-	resourceMap map[Handle]*ResourceSet
+	resourceMap map[string]*ResourceSet
 	storageDir  string
 	lock        sync.RWMutex // for calling Reset() and safety when adding a new ResourceSet
 }
@@ -35,7 +35,7 @@ func (art *RWArtifactory) Reset() error {
 }
 
 // ResetHandle zeros out the files and data from one given handle
-func (art *RWArtifactory) ResetHandle(h Handle) error {
+func (art *RWArtifactory) ResetHandle(h string) error {
 	art.lock.Lock()
 	defer art.lock.Unlock()
 	set := art.resourceMap[h]
@@ -52,7 +52,7 @@ func (art *RWArtifactory) ResetHandle(h Handle) error {
 // given handle, that may be requested by the user.  Nominally, this
 // allows the artifactory to populate the data structure without
 // actually retrieving (and returning) the files from a container.
-func (art *RWArtifactory) AddResource(h Handle, resourcePaths ...ResourcePath) error {
+func (art *RWArtifactory) AddResource(h string, resourcePaths ...ResourcePath) error {
 	art.lock.Lock()
 	defer art.lock.Unlock()
 	if art.resourceMap[h] == nil {
@@ -84,7 +84,7 @@ func (art *RWArtifactory) AddResource(h Handle, resourcePaths ...ResourcePath) e
 // is an arbitrary prefix (e.g. "inbox"), and $RESOURCE_PATH is the
 // full path at which the resource can be found *inside* the
 // container
-func (art *RWArtifactory) EachResource(h Handle, resourceFunc func(*Resource, error) error) error {
+func (art *RWArtifactory) EachResource(h string, resourceFunc func(*Resource, error) error) error {
 	art.lock.RLock()
 	defer art.lock.RUnlock()
 	set := art.resourceMap[h]

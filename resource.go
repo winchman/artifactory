@@ -25,7 +25,7 @@ concurrently read from / written to.
 type Resource struct {
 	Error error
 
-	handle     Handle
+	handle     string
 	lock       sync.RWMutex // used for reading/writing the state and the actual file
 	path       ResourcePath
 	present    bool
@@ -48,13 +48,13 @@ func (r *Resource) Reset() error {
 
 /*
 NewResourceOptions is a struct to disambiguate the options passed to
-NewResource.  Handle should correspond to a valid containerID as created
-by NewHandle to ensure that artifact extraction is possible.  If being used
-for testing, Handle may be nil, and resource.present should be set to true.
+NewResource.  Handle should be a valid containerID to ensure that artifact
+extraction is possible.  If being used for testing, Handle may be nil, and
+resource.present should be set to true.
 */
 type NewResourceOptions struct {
 	StorageDir string
-	Handle     Handle
+	Handle     string
 	Path       string
 	test       bool // private, can only be set for tests in same package
 }

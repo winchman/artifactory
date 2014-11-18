@@ -19,7 +19,7 @@ func (r *Resource) checkAndPopulate() error {
 			return err
 		}
 
-		containerID, err := createAndStartContainer(client.Client(), r.handle.String())
+		containerID, err := createAndStartContainer(client.Client(), r.handle)
 		if err != nil {
 			return err
 		}
