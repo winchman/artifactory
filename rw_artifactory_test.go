@@ -12,7 +12,7 @@ import (
 
 const (
 	imageName    = "quay.io/rafecolton/docker-builder:latest"
-	resourcePath = ResourcePath("/app/bin/docker-builder")
+	resourcePath = "/app/bin/docker-builder"
 )
 
 func TestArtifactory(t *testing.T) {

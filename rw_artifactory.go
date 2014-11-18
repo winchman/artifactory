@@ -52,7 +52,7 @@ func (art *RWArtifactory) ResetHandle(h string) error {
 // given handle, that may be requested by the user.  Nominally, this
 // allows the artifactory to populate the data structure without
 // actually retrieving (and returning) the files from a container.
-func (art *RWArtifactory) AddResource(h string, resourcePaths ...ResourcePath) error {
+func (art *RWArtifactory) AddResource(h string, resourcePaths ...string) error {
 	art.lock.Lock()
 	defer art.lock.Unlock()
 	if art.resourceMap[h] == nil {
@@ -61,8 +61,8 @@ func (art *RWArtifactory) AddResource(h string, resourcePaths ...ResourcePath) e
 
 	for _, resourcePath := range resourcePaths {
 		err := art.resourceMap[h].Add(NewResource(NewResourceOptions{
-			Path:       string(resourcePath),
-			StorageDir: art.storageDir + "/" + string(h),
+			Path:       resourcePath,
+			StorageDir: art.storageDir + "/" + h,
 			Handle:     h,
 		}))
 		if err != nil {

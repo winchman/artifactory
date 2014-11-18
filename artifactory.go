@@ -13,7 +13,7 @@ type Artifactory interface {
 	Reset() error
 
 	// ResetHandle zeros out the files and data from one given handle
-	ResetHandle(string) error
+	ResetHandle(handle string) error
 
 	// AddResource gives an Artifactory a list of resource paths, for a
 	// given handle, that may be requested by the user.  Nominally, this
@@ -21,7 +21,7 @@ type Artifactory interface {
 	// actually retrieving (and returning) the files from a container.
 	//
 	// I'm not 100% this function will be necessary.
-	AddResource(string, ...ResourcePath) error
+	AddResource(handle string, resourcePaths ...string) error
 
 	// EachResource will return an io.ReadCloser from which the
 	// file contents can be read for each resource.  The file contents
@@ -34,5 +34,5 @@ type Artifactory interface {
 	// is an arbitrary prefix (e.g. "inbox"), and $RESOURCE_PATH is the
 	// full path at which the resource can be found *inside* the
 	// container
-	EachResource(string, func(*Resource, error) error) error
+	EachResource(handle string, resourceFunc func(*Resource, error) error) error
 }
