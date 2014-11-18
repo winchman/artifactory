@@ -4,12 +4,9 @@ import (
 	"bytes"
 	"fmt"
 	"os"
-	"regexp"
-	"sort"
 
 	"github.com/docker/docker/pkg/archive"
-	"github.com/fsouza/go-dockerclient"
-	"github.com/rafecolton/go-dockerclient-sort"
+	"github.com/rafecolton/go-dockerclient-quick"
 	"github.com/sylphon/artifactory"
 )
 
@@ -21,12 +18,12 @@ const (
 // The example details how to extract the docker-builder binary from the lastest
 // docker-builder image
 func main() {
-	client, err := artifactory.NewDockerClient()
+	client, err := dockerclient.NewDockerClient()
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-	containerID, err := client.LatestImageByName(imageName)
+	containerID, err := client.LatestImageIDByName(imageName)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
