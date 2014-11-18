@@ -1,4 +1,7 @@
 SHELL := /bin/bash
+GOPATH := $(shell echo $${GOPATH%%:*})
+
+export GOPATH
 
 .PHONY: test
 test: .fmtpolice
@@ -16,9 +19,13 @@ fmtpolice:
 	bash fmtpolice
 	@find . -type f -name '*.test' -exec rm {} \;
 
+$(GOPATH)/bin/deppy:
+	go get -u github.com/hamfist/deppy
+
 .PHONY: get
-get:
+get: $(GOPATH)/bin/deppy
 	go get -d -t ./...
+	deppy restore
 
 .PHONY: coverage
 coverage: $(PWD)/coverage

@@ -7,24 +7,25 @@ import (
 	"os"
 
 	"github.com/fsouza/go-dockerclient"
+	"github.com/rafecolton/go-dockerclient-quick"
 )
 
 func (r *Resource) checkAndPopulate() error {
 	if !r.present {
 		r.lock.Lock()
 		defer r.lock.Unlock()
-		client, err := NewDockerClient()
+		client, err := dockerclient.NewDockerClient()
 		if err != nil {
 			return err
 		}
 
-		containerID, err := client.createAndStartContainer(r.handle.String())
+		containerID, err := createAndStartContainer(client.Client(), r.handle.String())
 		if err != nil {
 			return err
 		}
 
 		defer func() {
-			go client.killContainer(containerID)
+			go killContainer(client.Client(), containerID)
 		}()
 
 		var buf bytes.Buffer
@@ -50,7 +51,7 @@ func (r *Resource) checkAndPopulate() error {
 }
 
 // creates the container with image id and starts it, returns the container id
-func (client *DockerClient) createAndStartContainer(id string) (string, error) {
+func createAndStartContainer(client *docker.Client, id string) (string, error) {
 	createOpts := docker.CreateContainerOptions{
 		Config: &docker.Config{
 			Image:      id,
@@ -59,14 +60,14 @@ func (client *DockerClient) createAndStartContainer(id string) (string, error) {
 		},
 	}
 
-	container, err := (*docker.Client)(client).CreateContainer(createOpts)
+	container, err := client.CreateContainer(createOpts)
 	if err != nil {
 		//fmt.Println("error creating container: " + err.Error())
 		return "", err
 	}
 
 	//fmt.Println("starting container for artifact extraction...")
-	if err := (*docker.Client)(client).StartContainer(container.ID, &docker.HostConfig{}); err != nil {
+	if err := client.StartContainer(container.ID, &docker.HostConfig{}); err != nil {
 		//fmt.Println("error starting container: " + err.Error())
 		return "", err
 	}
@@ -74,13 +75,13 @@ func (client *DockerClient) createAndStartContainer(id string) (string, error) {
 }
 
 // kills the container
-func (client *DockerClient) killContainer(containerID string) {
+func killContainer(client *docker.Client, containerID string) {
 	//fmt.Println("artifact extraction complete, killing container")
 	opts := docker.KillContainerOptions{
 		ID:     containerID,
 		Signal: docker.SIGKILL,
 	}
-	if err := (*docker.Client)(client).KillContainer(opts); err != nil {
+	if err := client.KillContainer(opts); err != nil {
 		fmt.Println("error killing container: " + err.Error())
 	}
 }

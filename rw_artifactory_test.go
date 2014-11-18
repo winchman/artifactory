@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/docker/docker/pkg/archive"
+	"github.com/rafecolton/go-dockerclient-quick"
 )
 
 const (
@@ -29,7 +30,7 @@ func TestArtifactory(t *testing.T) {
 
 	var art = NewArtifactory(tempDir)
 	var containerID string
-	client, err := NewDockerClient()
+	client, err := dockerclient.NewDockerClient()
 	if err != nil {
 		t.Fatal(err)
 	}
