@@ -12,7 +12,7 @@ import (
 
 const (
 	imageName    = "quay.io/rafecolton/docker-builder:latest"
-	resourcePath = ResourcePath("/app/bin/docker-builder")
+	resourcePath = "/app/bin/docker-builder"
 )
 
 func TestArtifactory(t *testing.T) {
@@ -39,7 +39,7 @@ func TestArtifactory(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if err := art.AddResource(Handle(containerID), resourcePath); err != nil {
+	if err := art.AddResource(containerID, resourcePath); err != nil {
 		t.Fatal(err)
 	}
 	var resourceFunc = func(r *Resource, err error) error {
@@ -55,7 +55,7 @@ func TestArtifactory(t *testing.T) {
 		return nil
 	}
 
-	if err := art.EachResource(Handle(containerID), resourceFunc); err != nil {
+	if err := art.EachResource(containerID, resourceFunc); err != nil {
 		t.Fatal(err)
 	}
 

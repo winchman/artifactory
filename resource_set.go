@@ -13,14 +13,14 @@ ResourceSet is a thread-safe hash map of resource values.  Resources may be adde
 and their artifacts will be available upon request
 */
 type ResourceSet struct {
-	resources map[ResourcePath]*Resource
+	resources map[string]*Resource
 	lock      sync.RWMutex // for adding new resource objects
 }
 
 // NewResourceSet creates a fully initialized ResourceSet
 func NewResourceSet() *ResourceSet {
 	return &ResourceSet{
-		resources: map[ResourcePath]*Resource{},
+		resources: map[string]*Resource{},
 	}
 }
 
@@ -42,7 +42,7 @@ func (set *ResourceSet) Add(r *Resource) error {
 }
 
 // Get returns the resource that exists at path (or nil)
-func (set *ResourceSet) Get(path ResourcePath) *Resource {
+func (set *ResourceSet) Get(path string) *Resource {
 	set.lock.RLock()
 	defer set.lock.RUnlock()
 	return set.resources[path]

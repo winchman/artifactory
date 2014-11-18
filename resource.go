@@ -10,13 +10,6 @@ import (
 )
 
 /*
-ResourcePath is a string referring to the path inside the container
-to the file or directory.  The type makes it clear what the key
-should be when adding it to map
-*/
-type ResourcePath string
-
-/*
 Resource is a type that represents a filepath inside the container
 that corresponds to a real file on disk on the host machine.  It has
 a nested read-write lock such that it may be locked when being
@@ -25,9 +18,9 @@ concurrently read from / written to.
 type Resource struct {
 	Error error
 
-	handle     Handle
+	handle     string
 	lock       sync.RWMutex // used for reading/writing the state and the actual file
-	path       ResourcePath
+	path       string
 	present    bool
 	storageDir string
 }
@@ -48,13 +41,13 @@ func (r *Resource) Reset() error {
 
 /*
 NewResourceOptions is a struct to disambiguate the options passed to
-NewResource.  Handle should correspond to a valid containerID as created
-by NewHandle to ensure that artifact extraction is possible.  If being used
-for testing, Handle may be nil, and resource.present should be set to true.
+NewResource.  Handle should be a valid containerID to ensure that artifact
+extraction is possible.  If being used for testing, Handle may be nil, and
+resource.present should be set to true.
 */
 type NewResourceOptions struct {
 	StorageDir string
-	Handle     Handle
+	Handle     string
 	Path       string
 	test       bool // private, can only be set for tests in same package
 }
@@ -63,7 +56,7 @@ type NewResourceOptions struct {
 func NewResource(opts NewResourceOptions) *Resource {
 	return &Resource{
 		storageDir: opts.StorageDir,
-		path:       ResourcePath(opts.Path),
+		path:       opts.Path,
 		present:    opts.test, // if testing mode, mark as already present
 		handle:     opts.Handle,
 	}
@@ -85,7 +78,7 @@ func (r *Resource) artifactBytes() ([]byte, error) {
 
 // Path returns, for the given resource, the path inside the container at which
 // it can be found - used as a unique index for a given handle (container ID)
-func (r *Resource) Path() ResourcePath {
+func (r *Resource) Path() string {
 	return r.path
 }
 
