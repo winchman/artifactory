@@ -6,6 +6,7 @@ export GOPATH
 .PHONY: test
 test: .fmtpolice
 	go test ./...
+	@find . -type f -name '*.test' -exec rm {} \;
 
 .PHONY: integration
 integration: .fmtpolice
@@ -17,7 +18,6 @@ fmtpolice:
 .PHONY:
 .fmtpolice: fmtpolice
 	bash fmtpolice
-	@find . -type f -name '*.test' -exec rm {} \;
 
 $(GOPATH)/bin/deppy:
 	go get -u github.com/hamfist/deppy
