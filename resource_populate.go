@@ -35,7 +35,7 @@ func (r *Resource) checkAndPopulate() error {
 			Resource:     string(r.path),
 			OutputStream: &buf,
 		}
-		if err := (*docker.Client)(client).CopyFromContainer(opts); err != nil {
+		if err := client.Client().CopyFromContainer(opts); err != nil {
 			return err
 		}
 		if err := os.MkdirAll(r.storageDir, 0777); err != nil {

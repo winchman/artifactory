@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/docker/docker/pkg/archive"
+	"github.com/fsouza/go-dockerclient"
 	"github.com/rafecolton/go-dockerclient-quick"
 )
 
@@ -29,17 +30,17 @@ func TestArtifactory(t *testing.T) {
 	}()
 
 	var art = NewArtifactory(tempDir)
-	var containerID string
+	var image *docker.APIImages
 	client, err := dockerclient.NewDockerClient()
 	if err != nil {
 		t.Fatal(err)
 	}
-	containerID, err = client.LatestImageIDByName(imageName)
+	image, err = client.LatestImageByRegex("^" + imageName + "$")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if err := art.AddResource(containerID, resourcePath); err != nil {
+	if err := art.AddResource(image.ID, resourcePath); err != nil {
 		t.Fatal(err)
 	}
 	var resourceFunc = func(r *Resource, err error) error {
@@ -55,7 +56,7 @@ func TestArtifactory(t *testing.T) {
 		return nil
 	}
 
-	if err := art.EachResource(containerID, resourceFunc); err != nil {
+	if err := art.EachResource(image.ID, resourceFunc); err != nil {
 		t.Fatal(err)
 	}
 
