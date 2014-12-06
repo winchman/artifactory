@@ -7,7 +7,7 @@ import (
 
 	"github.com/docker/docker/pkg/archive"
 	"github.com/rafecolton/go-dockerclient-quick"
-	"github.com/sylphon/artifactory"
+	"github.com/winchman/artifactory"
 )
 
 const (

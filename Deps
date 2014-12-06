@@ -1,5 +1,5 @@
 {
-	"ImportPath": "github.com/sylphon/artifactory",
+	"ImportPath": "github.com/winchman/artifactory",
 	"GoVersion": "go1.3.3",
 	"Deps": [
 		{
