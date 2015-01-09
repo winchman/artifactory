@@ -4,7 +4,7 @@ sudo: false
 matrix:
   fast_finish: true
   allow_failures:
-    - go: tip
+  - go: tip
 go:
 - 1.2.2
 - 1.3.1
@@ -17,4 +17,4 @@ after_success:
 - make goveralls
 env:
   global:
-    secure: HqpD2WaO5/rb01ef5tQWUDuGZmexzLi7FC3Nh7KA83Ei3sdJ53z9/m6AOKeH9J06EbRUIWVqhjehLFY49V/1GaIIsA54fBjNqOaV26r2CWquKatc+FUD7q5CWiQAY7ylVbyIGAw3lIDneOolDP3SUqJjZ0p9WckP70GUrFQZNZE=
+    secure: iSNGlDUtCd6ruDLB382WTSDq+Iyu5j1+0jhBMlxCJ0+3xYvMhTstS0v/1moE/yZF4Z/YCOIvJfnMpIUoXBNkvtBp/OeQnVCu3oW34Hzc3HIpPaps1t4RA3ufj5xB0pnu2YmIDI1VB5u59EBoze3vNjWDm5eZ+J8NSV3Q/VcYoW4=
